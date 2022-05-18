@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 
-#
-#   Hello World server in Python
-#   Binds REP socket to tcp://*:5555
-#   Expects b"Hello" from client, replies with b"World"
-#
-
+import signal
 import time
 import zmq
 
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 context = zmq.Context()
-socket = context.socket(zmq.REP)
-socket.bind("tcp://*:5555")
+socket = context.socket(zmq.PUB)
+socket.bind('tcp://*:5555')
 
-while True:
-    #  Wait for next request from client
-    message = socket.recv()
-    print(f"Received request: {message}")
-
-    #  Do some 'work'
+for i in range(5):
+    socket.send(b'status 5')
+    socket.send(b'All is well')
     time.sleep(1)
-
-    #  Send reply back to client
-    socket.send(b"World")

@@ -1,25 +1,17 @@
 #!/usr/bin/env python3
 
-#
-#   Hello World client in Python
-#   Connects REQ socket to tcp://localhost:5555
-#   Sends "Hello" to server, expects "World" back
-#
-
+import signal
 import zmq
+
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 context = zmq.Context()
 
-#  Socket to talk to server
-print("Connecting to hello world server…")
-socket = context.socket(zmq.REQ)
-socket.connect("tcp://localhost:5555")
+socket = context.socket(zmq.SUB)
+socket.connect('tcp://localhost:5555')
+socket.setsockopt(zmq.SUBSCRIBE, b'All')
 
-#  Do 10 requests, waiting each time for a response
-for request in range(10):
-    print(f"Sending request {request} …")
-    socket.send(b"Hello")
-
-    #  Get the reply.
-    message = socket.recv()
-    print(f"Received reply {request} [ {message} ]")
+while True:
+    message = socket.recv_multipart()
+    print(f'Received: {message}')
